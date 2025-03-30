@@ -1,0 +1,560 @@
+{
+  "name": "Sistema de categorizacion de email con respuestas automatizadas",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -420,
+        380
+      ],
+      "id": "a21fcb77-99c1-4906-b86f-de59ed421a58",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qScQSogWqbcl7MKM",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6ef00483-53ba-43ad-9e4a-273575780cdd",
+                    "leftValue": "={{ $json.subject.toLowerCase() }}{{ $json.text.toLowerCase() }}",
+                    "rightValue": "urgente|emergencia|inmediato|crítico|problema",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Urgente"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "907a35da-2be5-4e50-a4ad-e2b7729e4c90",
+                    "leftValue": "={{ $json.subject.toLowerCase() }}{{ $json.text.toLowerCase() }}",
+                    "rightValue": "facturacion|factura|pago|cobro|cuenta|suscripcion",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Facturacion"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fc45aa2b-7dc3-4d13-83c3-0f94969ef1a8",
+                    "leftValue": "={{ $json.subject.toLowerCase() }}{{ $json.text.toLowerCase() }}",
+                    "rightValue": "=consulta|pregunta|información|ayuda|soporte",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Consulta"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -220,
+        360
+      ],
+      "id": "d01333c2-e16b-4071-872e-92d49858c28f",
+      "name": "Switch",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QcYqSKu5wybqpGjBs2ICQt43IGS6YBErmdamWJfblOo",
+          "mode": "list",
+          "cachedResultName": "RegistroInteraccionesN8N",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QcYqSKu5wybqpGjBs2ICQt43IGS6YBErmdamWJfblOo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QcYqSKu5wybqpGjBs2ICQt43IGS6YBErmdamWJfblOo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "FECHA": "={{ $('Gmail Trigger').item.json.date }}",
+            "REMITENTE": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+            "NOMBRE": "={{ $('Gmail Trigger').item.json.from.value[0].name }}",
+            "ASUNTO": "={{ $('Gmail Trigger').item.json.subject }}",
+            "CATEGORIA": "={{ $('Merge').item.json.categoria.nombre }}",
+            "PRIORIDAD": "={{ $('Merge').item.json.categoria.prioridad }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "REMITENTE",
+              "displayName": "REMITENTE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NOMBRE",
+              "displayName": "NOMBRE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ASUNTO",
+              "displayName": "ASUNTO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CATEGORIA",
+              "displayName": "CATEGORIA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRIORIDAD",
+              "displayName": "PRIORIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        760,
+        380
+      ],
+      "id": "926ccbab-ce2b-4282-a889-329a08b16ab9",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QRGmAnC648fmedFh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        320,
+        360
+      ],
+      "id": "50050d4f-fd33-4486-91f1-e68bece0d7ae",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "content": "### Activacion de workflow\nEl workflow se activara al recibir un mensaje a una cuenta de correo especifica",
+        "height": 320,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        220
+      ],
+      "id": "895cbdae-a30e-44db-8240-a73b70c759bd",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Filtrar por categoria\n-Se usa filtrado por regex usado como separador \"|\" compatible con regex que lee como OR",
+        "height": 320,
+        "width": 200,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        220
+      ],
+      "id": "28e702cd-4cc8-440b-9dac-eb53dd9c1459",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### Asignacion de prioridad y mensaje\nCon los correos previamente filtrados se agrega como dato: categoria, prioridad y mensaje(de acuerdo a la categoria)",
+        "height": 800,
+        "width": 220,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d25bd89a-dc0c-4ac7-8ed5-a5c1acb80a3e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Conbianacion de los flujos\nSe combian los datos para obtener una unica salida de: Categoria,prioridad y mensaje",
+        "height": 380,
+        "width": 220,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        260,
+        220
+      ],
+      "id": "06c93a6d-0c15-4035-ab3d-48a3e1d7e807",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Envio y registro del mensaje\n* Se envia el mensaje de acuerdo a la categoria. \n* Se realiza un registro con fecha, remitente, asunto, categoria y prioridad\n* Una vez registrado se marca el mensaje recibido como leido",
+        "height": 280,
+        "width": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        260
+      ],
+      "id": "5ce6899d-a5e9-4766-a7ff-9c9e2a1c69fe",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+        "subject": "={{ $json.categoria.nombre }}",
+        "message": "={{ $json.categoria.mensaje }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        380
+      ],
+      "id": "67af34ab-4fa7-4718-8183-9b28fedd3754",
+      "name": "Gmail-Enviar",
+      "webhookId": "1f73f065-4baf-4e97-826d-39f857ef8632",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qScQSogWqbcl7MKM",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        380
+      ],
+      "id": "eb07d485-6b4b-4d05-82be-2ea73d244bd1",
+      "name": "Gmail-Marcar",
+      "webhookId": "cdb267fc-f7bd-49d5-9ace-c605c56efbeb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qScQSogWqbcl7MKM",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"categoria\": {\n    \"nombre\": \"URGENTE\",\n    \"prioridad\": \"ALTA\",\n    \"mensaje\": \"Estimado/a {{$json.from.value[0].name}},\\n\\nHemos recibido su mensaje y entendemos la urgencia de su solicitud. Nuestro equipo de soporte está priorizando su caso y le responderemos en el menor tiempo posible.\\n\\nSi necesita asistencia inmediata, puede contactarnos al [número de soporte] o a través de nuestro chat en vivo en [sitio web].\\n\\nAgradecemos su paciencia y trabajamos para resolver su incidencia lo antes posible.\\n\\nSaludos,\\n[Nombre del equipo de soporte]\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        160
+      ],
+      "id": "c45aa021-5c90-4808-b9ab-e0d1ab841ec0",
+      "name": "Edit Fields1 -> Urgente"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"categoria\": {\n    \"nombre\": \"CONSULTA\",\n    \"prioridad\": \"BAJA\",\n    \"mensaje\": \"Estimado/a {{ $json.from.value[0].name }},\\n\\nGracias por ponerse en contacto con nosotros. Hemos recibido su consulta y nuestro equipo la está revisando.\\n\\nLe daremos respuesta en un plazo de [X horas]. Mientras tanto, puede visitar nuestra sección de preguntas frecuentes en [enlace FAQ], donde encontrará información útil sobre nuestro servicio.\\n\\nSi necesita más ayuda, no dude en escribirnos.\\n\\nSaludos cordiales,\\n[Equipo de atención al cliente]\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        480
+      ],
+      "id": "26fdcc30-b2b6-4c82-82ae-1abc495f6573",
+      "name": "Edit Fields3 -> Consulta"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"categoria\": {\n    \"nombre\": \"NO IDENTIFICADO\",\n    \"prioridad\": \"BAJA\",\n    \"mensaje\": \"Estimado/a  {{ $json.from.value[0].name }},\\n\\nHemos recibido su mensaje, pero no pudimos clasificar automáticamente su solicitud. Nuestro equipo lo revisará y le responderemos en el menor tiempo posible.\\n\\nSi su consulta es urgente, le recomendamos comunicarse a [número de soporte] o visitar nuestra sección de preguntas frecuentes en [enlace FAQ].\\n\\nGracias por su paciencia.\\n\\nSaludos,\\n[Equipo de atención al cliente]\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        640
+      ],
+      "id": "a35b225b-18ae-4e94-84e9-6bfb1fad92ef",
+      "name": "Edit Fields4 -> Default"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"categoria\": {\n    \"nombre\": \"FACTURACIÓN\",\n    \"prioridad\": \"MEDIA\",\n    \"mensaje\": \"Estimado/a {{$json.from.value[0].name}},\\n\\nHemos recibido su consulta sobre facturación. Para brindarle una mejor asistencia, por favor proporciónenos el número de factura o el comprobante de pago.\\n\\nNuestro equipo revisará su solicitud y le enviaremos una respuesta en un plazo de [X horas].\\n\\nSi desea consultar el estado de su facturación en línea, puede acceder a su cuenta en [enlace al portal].\\n\\nQuedamos atentos a cualquier otra consulta.\\n\\nSaludos,\\n[Equipo de facturación]\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        320
+      ],
+      "id": "a0f6c04c-8e22-4186-ac44-899091a0858c",
+      "name": "Edit Fields2 ->Facturacion"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1 -> Urgente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2 ->Facturacion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3 -> Consulta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4 -> Default",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Gmail-Enviar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Gmail-Marcar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail-Enviar": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1 -> Urgente": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3 -> Consulta": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields4 -> Default": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Edit Fields2 ->Facturacion": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "61c5a299-9c89-464f-b215-faab79272d4a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "df6956714bf46bdd1fe9d05f17979ede73f91ca03c023ed389fabe1c721b4e29"
+  },
+  "id": "chGLxtkoQypIdYXS",
+  "tags": []
+}
