@@ -64,3 +64,6 @@ Lógica compleja limitada al nodo Code.
 
 # Contribuciones
 ¡Las contribuciones son bienvenidas! Por favor, abre un issue o un pull request en este repositorio.
+
+# Autores
+Apolo Reynoso - Erick González
