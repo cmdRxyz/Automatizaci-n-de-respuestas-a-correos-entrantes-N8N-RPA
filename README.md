@@ -5,6 +5,8 @@ Este proyecto implementa una solución de automatización de procesos robóticos
 
 Este proyecto implementa un flujo de automatización (RPA) en [N8N](https://n8n.io/) para clasificar correos electrónicos entrantes, generar respuestas automáticas usando IA (OpenAI GPT-4o-mini), registrar datos en Google Sheets y notificar urgencias vía Telegram.
 
+![Simulación](./carpeta/GmailRPAN8N.png "Vista previa del workflow")
+
 ## Descripción
 
 El flujo escucha correos en una cuenta IMAP (Gmail empresarial), los analiza con IA para clasificarlos en categorías ("urgente", "consulta", "facturación", "general"), genera respuestas personalizadas, las envía al remitente, registra los detalles en una hoja de Google Sheets y envía alertas por Telegram si el correo es urgente.
@@ -13,9 +15,7 @@ Este proyecto implementa una solución de automatización de procesos robóticos
 Posteriormente, el flujo envía la respuesta al remitente original mediante SMTP, registra los detalles del correo (remitente, asunto, categoría, prioridad y fecha) en una hoja de Google Sheets para seguimiento, y, en caso de que el correo sea clasificado como "urgente", envía una notificación inmediata a un chat de Telegram con información relevante.
 
 El proyecto está diseñado para optimizar la gestión de correos electrónicos, reducir el tiempo de respuesta y mejorar la trazabilidad de las comunicaciones, siendo ideal para entornos empresariales que requieren automatización basada en APIs y procesamiento inteligente de texto.
-
-![Simulación](Simulación-N8N-‐-Hecho-con-Clipchamp.gif "Simulación en tiempo real")
-
+![Simulación](./carpeta/Simulación-N8N-‐-Hecho-con-Clipchamp.gif "Simulación en tiempo real")
 ## Requisitos previos
 
 - **n8n**: Instancia local (Docker) o en n8n Cloud.
