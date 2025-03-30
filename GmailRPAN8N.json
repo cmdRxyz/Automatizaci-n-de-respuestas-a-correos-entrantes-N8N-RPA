@@ -1,0 +1,298 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "format": "resolved",
+        "options": {
+          "forceReconnect": 5
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "19dd636f-bd8d-493c-bc5b-f637a3e70d8d",
+      "name": "Email Trigger (IMAP)",
+      "notesInFlow": true,
+      "credentials": {
+        "imap": {
+          "id": "pKBsn7ZtBGjvEVh6",
+          "name": "IMAP account 2"
+        }
+      },
+      "notes": "Conexión de la cuenta de Gmail de la empresa."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener datos del email\nconst subject = $input.item.subject ? $input.item.subject : '';\nconst body = $input.item.html ? $input.item.html : ($input.item.text ? $input.item.text : '');\nconst from = $input.item.from && $input.item.from[0] ? $input.item.from[0].email : '';\nconst name = $input.item.from && $input.item.from[0] && $input.item.from[0].name ? $input.item.from[0].name : from;\n\n// Crear prompt para ChatGPT\nconst prompt = `You are an email classification and response assistant. Analyze the following email and return a JSON object with:\n- \"categoria\": one of \"urgente\", \"consulta\", \"facturacion\", or \"general\"\n- \"prioridad\": \"alta\" for urgente, \"media\" for consulta/facturacion, \"baja\" for general\n- \"respuesta\": a polite response in the recipient's language and name.\nYou will response at the name: Autista Pernandez Alcatraz, Engineer and NASA researcher.\nEmail subject: ${subject}\nEmail body: ${body}`;\n\nreturn {\n  json: {\n    emailOriginal: $input.item,\n    destinatario: from,\n    nombre: name || 'Cliente',\n    asunto: subject || 'Sin asunto',\n    prompt: prompt,\n    fechaRecepcion: new Date().toISOString()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b66547ce-969c-4746-86d1-d7a6778649d5",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}"
+            },
+            {
+              "content": "={{ $json.emailOriginal.json.text }}"
+            }
+          ]
+        },
+        "simplify": "={{ true }}",
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        480,
+        0
+      ],
+      "id": "26351739-e06c-4190-9627-c568f2804f4c",
+      "name": "OpenAI",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "Uush7ESNnxXKrow9",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "pernandezautista@gmail.com",
+        "toEmail": "={{ $('Code').item.json.emailOriginal.json.headers['return-path'] }}",
+        "subject": "={{ $('Code').item.json.emailOriginal.json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.message.content.respuesta }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        0
+      ],
+      "id": "7e99118f-a515-46f4-b220-ab3b3331ab2e",
+      "name": "Send Email",
+      "webhookId": "5129ab84-ed27-4a7f-ab88-6306056440a7",
+      "credentials": {
+        "smtp": {
+          "id": "qp3VRb22phfMJo8v",
+          "name": "SMTP account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1C5jJM0X1RQW0B7mF5IYFoH7-3jnN3SOO7BW-HnAyuiQ",
+          "mode": "list",
+          "cachedResultName": "Correos Electrónicos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C5jJM0X1RQW0B7mF5IYFoH7-3jnN3SOO7BW-HnAyuiQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C5jJM0X1RQW0B7mF5IYFoH7-3jnN3SOO7BW-HnAyuiQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Remitente": "={{ $('Code').item.json.emailOriginal.json.from.value[0].name }}",
+            "Asunto": "={{ $('Code').item.json.emailOriginal.json.headers.subject }}",
+            "Categoria": "={{ $('OpenAI').item.json.message.content.categoria }}",
+            "Prioridad": "={{ $('OpenAI').item.json.message.content.prioridad }}",
+            "Fecha": "={{ $('Code').item.json.emailOriginal.json.headers.date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Remitente",
+              "displayName": "Remitente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "8c06e587-6930-4661-988c-2047db653103",
+      "name": "Google Sheets",
+      "notesInFlow": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cFbNAXyq8Ji05YJG",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "notes": "Registro de todos los correos enviados."
+    },
+    {
+      "parameters": {
+        "chatId": "7380774453",
+        "text": "=🚨 Alerta: Se ha recibido un correo urgente. \n📩 Remitente:  {{ $('Email Trigger (IMAP)').item.json.from.value[0].address }}\n📝 Asunto: {{ $json.Asunto }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1160,
+        0
+      ],
+      "id": "cb9d17b2-c494-4faa-a5cd-9bfd92e02302",
+      "name": "Telegram",
+      "webhookId": "4b126595-3193-41d7-81d4-6711fe567ef2",
+      "credentials": {
+        "telegramApi": {
+          "id": "t7YV5qvl7ItwPhDd",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8b085bcd-7e4f-42b6-976c-7d214f7a46ff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b609ad501805f6ba47d2ac6952fe46b01ab14e5de6cde7bd5975e08ca939f775"
+  },
+  "id": "urT1XfkajGjkM1JK",
+  "tags": []
+}
