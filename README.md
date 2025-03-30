@@ -15,7 +15,9 @@ Este proyecto implementa una solución de automatización de procesos robóticos
 Posteriormente, el flujo envía la respuesta al remitente original mediante SMTP, registra los detalles del correo (remitente, asunto, categoría, prioridad y fecha) en una hoja de Google Sheets para seguimiento, y, en caso de que el correo sea clasificado como "urgente", envía una notificación inmediata a un chat de Telegram con información relevante.
 
 El proyecto está diseñado para optimizar la gestión de correos electrónicos, reducir el tiempo de respuesta y mejorar la trazabilidad de las comunicaciones, siendo ideal para entornos empresariales que requieren automatización basada en APIs y procesamiento inteligente de texto.
-![Simulación](./carpeta/Simulación-N8N-‐-Hecho-con-Clipchamp.gif "Simulación en tiempo real")
+
+![Simulación](carpeta/Simulación-N8N-.gif "Simulación en tiempo real")
+
 ## Requisitos previos
 
 - **n8n**: Instancia local (Docker) o en n8n Cloud.
@@ -43,6 +45,8 @@ OpenAI: Clasifica el correo y genera una respuesta usando GPT-4o-mini.
 Send Email: Envía la respuesta al remitente.
 Google Sheets: Registra los detalles del correo en una hoja de cálculo.
 Telegram: Envía una notificación si el correo es "urgente".
+
+![Test en Telegram](carpeta/RPATelegramBot.png "Respuestas del Bot")
 
 # Estructura del proyecto
 workflow.json: Definición del flujo de trabajo en formato JSON.
