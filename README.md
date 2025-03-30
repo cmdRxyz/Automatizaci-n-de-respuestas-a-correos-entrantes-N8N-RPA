@@ -14,6 +14,8 @@ Posteriormente, el flujo envía la respuesta al remitente original mediante SMTP
 
 El proyecto está diseñado para optimizar la gestión de correos electrónicos, reducir el tiempo de respuesta y mejorar la trazabilidad de las comunicaciones, siendo ideal para entornos empresariales que requieren automatización basada en APIs y procesamiento inteligente de texto.
 
+![Simulación](Simulación-N8N-‐-Hecho-con-Clipchamp.gif "Simulación en tiempo real")
+
 ## Requisitos previos
 
 - **n8n**: Instancia local (Docker) o en n8n Cloud.
